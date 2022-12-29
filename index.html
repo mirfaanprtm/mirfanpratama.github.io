@@ -153,20 +153,32 @@
         </div>
         <div class="row justify-content-center">
           <div class="col-md-6">
-            <form>
+            <div class="alert alert-danger alert-dismissible my-alert-fail fade show d-none" role="alert">
+              <strong>Oops!</strong> Column cannot be empty.
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            <div class="alert alert-success alert-dismissible my-alert fade show d-none" role="alert">
+              <strong>Thank You!</strong> Your message has been successfully sent.
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            <form name="contact-form">
               <div class="mb-3">
                 <label for="name" class="form-label fw-bold" style="color: #3c6255">Full Name</label>
-                <input type="text" class="form-control" id="name" aria-describedby="name" />
+                <input type="text" class="form-control" id="name" aria-describedby="name" name="name" />
               </div>
               <div class="mb-3">
                 <label for="email" class="form-label fw-bold" style="color: #3c6255">Email</label>
-                <input type="email" class="form-control" id="email" aria-describedby="email" />
+                <input type="email" class="form-control" id="email" aria-describedby="email" name="email" />
               </div>
               <div class="mb-3">
                 <label for="message" class="form-label fw-bold" style="color: #3c6255">Description</label>
-                <textarea class="form-control" id="message" rows="3"></textarea>
+                <textarea class="form-control" id="message" name="description" rows="3"></textarea>
               </div>
-              <button type="submit" class="btn fw-bold" style="background-color: #3c6255; color: #eae7b1">Send</button>
+              <button type="submit" class="btn fw-bold btn-send" style="background-color: #3c6255; color: #eae7b1">Send</button>
+              <button class="btn-loading fw-bold d-none" type="button" style="border-radius: 6px; background-color: #3c6255; color: #eae7b1" disabled>
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                Loading...
+              </button>
             </form>
           </div>
         </div>
@@ -201,6 +213,40 @@
     <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
     <script>
       AOS.init();
+    </script>
+
+    <script>
+      const scriptURL = 'https://script.google.com/macros/s/AKfycbydIo5ELfS9iUYKM-ADMALZg-ItBGx4nqlwyeBY3OB0KhjqjXuZ8doHIK_fBKK46Z_s/exec';
+      const form = document.forms['contact-form'];
+
+      const buttonSend = document.querySelector('.btn-send');
+      const buttonLoading = document.querySelector('.btn-loading');
+      const myAlert = document.querySelector('.my-alert');
+      const myAlert2 = document.querySelector('.my-alert-fail')
+
+      const fullName = document.getElementById('name');
+      const email = document.getElementById('email');
+      const description = document.getElementById('message');
+
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        buttonLoading.classList.toggle('d-none');
+        buttonSend.classList.toggle('d-none');
+        fetch(scriptURL, { method: 'POST', body: new FormData(form) })
+          .then((response) => {
+            buttonLoading.classList.toggle('d-none');
+            buttonSend.classList.toggle('d-none');
+            if (fullName.value == '' && email.value == '' && description.value == '') {
+              console.log('Fail!', response);
+              myAlert2.classList.toggle('d-none');
+            } else {
+              console.log('Success!', response);
+              myAlert.classList.toggle('d-none');
+            }
+            form.reset();
+          })
+          .catch((error) => console.error('Error!', error.message));
+      });
     </script>
   </body>
 </html>
